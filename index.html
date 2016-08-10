@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello, DALI!</title>
+  </head>
+  <script>
+    const electron = require('electron');
+    const shell = electron.shell;
+    const ipc   = electron.ipcRenderer;
+    /** Node-if for this node. */
+    var myNid = null;
+
+    // DALIコマンドをバックエンド経由で送信
+    function daliCommand(cmd) {
+      ipc.send('cmd', cmd);
+    };
+
+    function runRaw() {
+      const raw = document.getElementById('raw').value;
+      if (raw !== '') {
+        daliCommand(raw + '\n');
+      }
+    };
+
+    // DALIからの応答を表示
+    ipc.on('recv', function(sender, param) {
+      console.log(param);
+      const recv = document.getElementById('recv');
+      recv.innerText = param;
+    });
+  </script>
+  <body>
+    <h1>Hello, DALI!</h1>
+    <input type="text" id="raw">
+    <input type="button" value="Run!" onClick="runRaw();">
+    <br>
+    <input type="button" value="Version?" onClick="daliCommand('#FW\n');">
+    <input type="button" value="Turn on all." onClick="daliCommand('#255,5\n');">
+    <input type="button" value="Turn off all." onClick="daliCommand('#255,0\n');">
+    <br>
+    <p id="recv"></p>
+  </body>
+</html>
